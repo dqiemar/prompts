@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Промпты — пиши, сохраняй, публикуй</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,10 +32,8 @@
     --ok:#30d158;
     --danger:#ff453a;
   }
-  *{box-sizing:border-box;}
-  html{
-    scrollbar-gutter:stable;
-  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scrollbar-gutter:stable;}
   html,body{margin:0;padding:0;}
   body{
     font-family:"Google Sans","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -49,7 +47,7 @@
     overflow-y:scroll;
     overflow-x:hidden;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px;}
 
   header h1{font-size:28px;font-weight:700;margin:0 0 4px;letter-spacing:-.02em;}
   header .sub{margin:0 0 22px;color:var(--muted);font-size:14px;}
@@ -65,12 +63,13 @@
     background:var(--card);
     border:1px solid var(--line);
     border-radius:var(--btn-radius);
-    padding:10px 44px 10px 18px;
+    padding:12px 44px 12px 18px;
     outline:none;
     transition:border-color .15s,background .25s,color .25s;
     -webkit-appearance:none;
     appearance:none;
     line-height:1.2;
+    font-size:16px;
   }
   #search:focus{border-color:var(--accent);}
   #search::-webkit-search-decoration,
@@ -91,8 +90,6 @@
     mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M15 9l-6 6M9 9l6 6'/></svg>") center/18px 18px no-repeat;
     opacity:.85;
     flex:0 0 auto;
-    position:relative;
-    right:0;
   }
   #search::-webkit-search-cancel-button:hover{opacity:1;}
 
@@ -103,7 +100,7 @@
     border:1px solid var(--line);
     background:var(--card);
     color:var(--text);
-    padding:10px 18px;border-radius:var(--btn-radius);cursor:pointer;
+    padding:12px 18px;border-radius:var(--btn-radius);cursor:pointer;
     transition:background .15s,border-color .15s;
   }
   .theme-toggle:hover{background:var(--bg);}
@@ -123,7 +120,7 @@
     display:flex;align-items:center;justify-content:space-between;gap:12px;
     cursor:pointer;
     user-select:none;
-    padding:2px 0;
+    padding:4px 0;
     border-radius:12px;
     transition:opacity .2s;
   }
@@ -139,21 +136,15 @@
 
   .accordion-body{
     overflow:hidden;
-    display:grid;
-    grid-template-rows:0fr;
+    max-height:0;
     opacity:0;
-    transition:grid-template-rows .42s cubic-bezier(.22,1,.36,1),
+    transition:max-height .4s cubic-bezier(.22,1,.36,1),
                opacity .3s ease;
   }
   .editor.open .accordion-body{
-    grid-template-rows:1fr;
     opacity:1;
   }
   .accordion-inner{
-    min-height:0;
-    overflow:hidden;
-  }
-  .editor.open .accordion-inner{
     padding-top:14px;
   }
 
@@ -165,9 +156,10 @@
     background:var(--card);
     border:1px solid var(--line);
     border-radius:16px;
-    padding:10px 14px;
+    padding:12px 14px;
     outline:none;
     transition:border-color .15s,background .25s,color .25s;
+    font-size:16px;
   }
   textarea{
     width:100%;
@@ -176,11 +168,12 @@
     background:var(--card);
     border:1px solid var(--line);
     border-radius:16px;
-    padding:10px 14px;
+    padding:12px 14px;
     outline:none;
     resize:none;
     min-height:150px;
     transition:border-color .15s,background .25s,color .25s;
+    font-size:16px;
   }
   input:focus,textarea:focus{border-color:var(--accent);}
 
@@ -191,17 +184,18 @@
     border:1px solid var(--line);
     background:var(--card);
     color:var(--text);
-    padding:10px 20px;
+    padding:12px 20px;
     border-radius:var(--btn-radius);
     cursor:pointer;
     transition:background .15s,border-color .15s,color .15s,transform .12s;
+    font-size:15px;
   }
   .btn:hover{background:var(--bg);}
-  .btn:active{transform:scale(.98);}
+  .btn:active{transform:scale(.97);}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
   .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
   .btn.ghost{background:transparent;}
-  .btn.sm{padding:7px 14px;font-size:13px;border-radius:16px;}
+  .btn.sm{padding:9px 14px;font-size:14px;border-radius:16px;}
   .btn.danger{color:var(--danger);}
   .btn.danger:hover{background:rgba(215,0,21,.08);border-color:var(--danger);}
 
@@ -211,10 +205,10 @@
   .dropzone{
     flex:1 1 240px;
     display:flex;flex-direction:column;justify-content:center;
-    min-height:46px;
+    min-height:52px;
     border:1.5px dashed var(--line);
     border-radius:var(--btn-radius);
-    padding:8px 18px;
+    padding:10px 18px;
     color:var(--muted);
     font-size:13px;
     cursor:pointer;
@@ -226,7 +220,7 @@
   .dropzone .hint{display:block;font-size:12px;margin-top:1px;}
   #fileInput{display:none;}
 
-  .feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  .feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
   .prompt{display:flex;flex-direction:column;min-width:0;}
   .prompt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0;}
   .prompt-head h3{font-size:16px;font-weight:700;margin:0;word-break:break-word;min-width:0;}
@@ -290,7 +284,7 @@
     background:var(--card);
     border:2px dashed var(--accent);
     border-radius:28px;
-    padding:44px 56px;
+    padding:44px 32px;
     text-align:center;
     color:var(--text);
     box-shadow:0 20px 60px rgba(0,0,0,.18);
@@ -351,11 +345,19 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   @media (max-width:560px){
-    .wrap{padding:20px 14px 50px;}
-    .search-wrap{max-width:none;flex:1 1 100%;}
+    .wrap{padding:20px 14px 70px;}
+    header h1{font-size:24px;}
+    .topbar{flex-direction:column;align-items:stretch;}
     .topbar-right{width:100%;}
+    .search-wrap{max-width:none;flex:1 1 100%;}
+    .theme-toggle{justify-content:center;width:100%;}
+    .editor{padding:16px;}
     .dropzone{flex:1 1 100%;}
+    .actions{flex-direction:column;align-items:stretch;}
+    .actions .btn.primary, .actions .btn.ghost{width:100%;}
+    .feed{grid-template-columns:1fr;}
     .prompt-actions{flex-wrap:wrap;}
+    .prompt-actions .btn{flex:1 1 30%;}
     #toTop{right:14px;bottom:14px;}
   }
 
@@ -445,6 +447,8 @@
   var editor = document.getElementById('editor');
   var accordionHead = document.getElementById('accordionHead');
   var editorTitle = document.getElementById('editorTitle');
+  var editorBody = document.getElementById('editorBody');
+  var editorInner = editorBody.querySelector('.accordion-inner');
   var elTitle = document.getElementById('pTitle');
   var elText = document.getElementById('pText');
   var formMsg = document.getElementById('formMsg');
@@ -469,6 +473,7 @@
   var toastTimer = null;
   var themeMode = 'auto';
   var dragCounter = 0;
+  var isOpen = false;
 
   var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
   var MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -515,18 +520,37 @@
     if(themeMode === 'auto') applyTheme();
   });
 
-  function setEditorOpen(open){
-    editor.classList.toggle('open', open);
-    accordionHead.setAttribute('aria-expanded', open ? 'true' : 'false');
+  function openEditor(){
+    if(isOpen) return;
+    isOpen = true;
+    editor.classList.add('open');
+    accordionHead.setAttribute('aria-expanded', 'true');
+    editorBody.style.maxHeight = editorInner.scrollHeight + 'px';
+    setTimeout(function(){
+      if(isOpen) editorBody.style.maxHeight = 'none';
+    }, 420);
   }
 
-  accordionHead.addEventListener('click', function(){
-    setEditorOpen(!editor.classList.contains('open'));
-  });
+  function closeEditor(){
+    if(!isOpen) return;
+    isOpen = false;
+    editorBody.style.maxHeight = editorInner.scrollHeight + 'px';
+    requestAnimationFrame(function(){
+      editorBody.style.maxHeight = '0px';
+    });
+    editor.classList.remove('open');
+    accordionHead.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleEditor(){
+    if(isOpen) closeEditor(); else openEditor();
+  }
+
+  accordionHead.addEventListener('click', toggleEditor);
   accordionHead.addEventListener('keydown', function(e){
     if(e.key === 'Enter' || e.key === ' '){
       e.preventDefault();
-      setEditorOpen(!editor.classList.contains('open'));
+      toggleEditor();
     }
   });
 
@@ -811,7 +835,7 @@
     if(!file) return;
     if(file.size > MAX_FILE_SIZE){
       showMsg('Файл больше 200 КБ — уменьши его.', false);
-      setEditorOpen(true);
+      openEditor();
       return;
     }
 
@@ -839,7 +863,7 @@
               showToast('Опубликовано промптов: ' + added);
             }else{
               showMsg('В JSON не нашлось промптов с полем text.', false);
-              setEditorOpen(true);
+              openEditor();
             }
             return;
           }
@@ -848,12 +872,12 @@
             text = String(data.text);
           }else{
             showMsg('В JSON нет поля text.', false);
-            setEditorOpen(true);
+            openEditor();
             return;
           }
         }catch(e){
           showMsg('Не удалось прочитать JSON.', false);
-          setEditorOpen(true);
+          openEditor();
           return;
         }
       }
@@ -861,7 +885,7 @@
       text = text.trim();
       if(!text){
         showMsg('Файл пустой.', false);
-        setEditorOpen(true);
+        openEditor();
         return;
       }
 
@@ -871,7 +895,7 @@
     };
     reader.onerror = function(){
       showMsg('Не удалось прочитать файл.', false);
-      setEditorOpen(true);
+      openEditor();
     };
     reader.readAsText(file);
   }
@@ -967,7 +991,6 @@
   load();
   render();
   updateToTop();
-  setEditorOpen(false);
 })();
 </script>
 </body>
