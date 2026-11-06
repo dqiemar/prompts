@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпты — пиши, сохраняй, публикуй</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --card:#ffffff;
+    --text:#1d1d1f;
+    --muted:#6e6e73;
+    --line:#e3e3e6;
+    --accent:#0071e3;
+    --accent-hover:#0062c4;
+    --ok:#1a7f37;
+    --danger:#d70015;
+    --radius:18px;
+    --btn-radius:22px;
+  }
+  [data-theme="dark"]{
+    --bg:#111113;
+    --card:#1c1c1e;
+    --text:#f5f5f7;
+    --muted:#a1a1a6;
+    --line:#2c2c2e;
+    --accent:#0a84ff;
+    --accent-hover:#409cff;
+    --ok:#30d158;
+    --danger:#ff453a;
+  }
+  *{box-sizing:border-box;}
+  html{
+    scrollbar-gutter:stable;
+  }
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Google Sans","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    font-weight:500;
+    background:var(--bg);
+    color:var(--text);
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    transition:background .25s,color .25s;
+    overflow-y:scroll;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+
+  header h1{font-size:28px;font-weight:700;margin:0 0 4px;letter-spacing:-.02em;}
+  header .sub{margin:0 0 22px;color:var(--muted);font-size:14px;}
+
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+  .search-wrap{flex:1 1 220px;max-width:320px;position:relative;}
+  #search{
+    width:100%;
+    font:inherit;
+    color:var(--text);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--btn-radius);
+    padding:10px 44px 10px 18px;
+    outline:none;
+    transition:border-color .15s,background .25s,color .25s;
+    -webkit-appearance:none;
+    appearance:none;
+    line-height:1.2;
+  }
+  #search:focus{border-color:var(--accent);}
+  #search::-webkit-search-decoration,
+  #search::-webkit-search-results-button,
+  #search::-webkit-search-results-decoration{
+    -webkit-appearance:none;
+    appearance:none;
+    display:none;
+  }
+  #search::-webkit-search-cancel-button{
+    -webkit-appearance:none;
+    appearance:none;
+    width:18px;height:18px;
+    margin:0 -28px 0 0;
+    cursor:pointer;
+    background-color:var(--accent);
+    -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M15 9l-6 6M9 9l6 6'/></svg>") center/18px 18px no-repeat;
+    mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M15 9l-6 6M9 9l6 6'/></svg>") center/18px 18px no-repeat;
+    opacity:.85;
+    flex:0 0 auto;
+    position:relative;
+    right:0;
+  }
+  #search::-webkit-search-cancel-button:hover{opacity:1;}
+
+  .theme-toggle{
+    flex:0 0 auto;
+    display:inline-flex;align-items:center;gap:7px;
+    font:inherit;font-size:13px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--text);
+    padding:10px 18px;border-radius:var(--btn-radius);cursor:pointer;
+    transition:background .15s,border-color .15s;
+  }
+  .theme-toggle:hover{background:var(--bg);}
+  .theme-toggle svg{width:15px;height:15px;display:block;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    transition:background .25s,border-color .25s;
+  }
+
+  .editor{margin-bottom:26px;padding:18px 20px;}
+
+  .accordion-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    cursor:pointer;
+    user-select:none;
+    padding:2px 0;
+    border-radius:12px;
+    transition:opacity .2s;
+  }
+  .accordion-head:active{opacity:.7;}
+  .accordion-head h2{font-size:17px;font-weight:700;margin:0;}
+  .accordion-head .chev{
+    width:18px;height:18px;flex:0 0 auto;
+    color:var(--muted);
+    transition:transform .35s cubic-bezier(.22,1,.36,1),color .2s;
+  }
+  .accordion-head .chev svg{width:18px;height:18px;display:block;}
+  .editor.open .accordion-head .chev{transform:rotate(180deg);color:var(--accent);}
+
+  .accordion-body{
+    overflow:hidden;
+    display:grid;
+    grid-template-rows:0fr;
+    opacity:0;
+    transition:grid-template-rows .42s cubic-bezier(.22,1,.36,1),
+               opacity .3s ease;
+  }
+  .editor.open .accordion-body{
+    grid-template-rows:1fr;
+    opacity:1;
+  }
+  .accordion-inner{
+    min-height:0;
+    overflow:hidden;
+  }
+  .editor.open .accordion-inner{
+    padding-top:14px;
+  }
+
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px;}
+  input[type="text"]{
+    width:100%;
+    font:inherit;
+    color:var(--text);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px 14px;
+    outline:none;
+    transition:border-color .15s,background .25s,color .25s;
+  }
+  textarea{
+    width:100%;
+    font:inherit;
+    color:var(--text);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px 14px;
+    outline:none;
+    resize:none;
+    min-height:150px;
+    transition:border-color .15s,background .25s,color .25s;
+  }
+  input:focus,textarea:focus{border-color:var(--accent);}
+
+  .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;}
+
+  .btn{
+    font:inherit;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--text);
+    padding:10px 20px;
+    border-radius:var(--btn-radius);
+    cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s,transform .12s;
+  }
+  .btn:hover{background:var(--bg);}
+  .btn:active{transform:scale(.98);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+  .btn.ghost{background:transparent;}
+  .btn.sm{padding:7px 14px;font-size:13px;border-radius:16px;}
+  .btn.danger{color:var(--danger);}
+  .btn.danger:hover{background:rgba(215,0,21,.08);border-color:var(--danger);}
+
+  .msg{font-size:13px;color:var(--danger);}
+  .msg.ok{color:var(--ok);}
+
+  .dropzone{
+    flex:1 1 240px;
+    display:flex;flex-direction:column;justify-content:center;
+    min-height:46px;
+    border:1.5px dashed var(--line);
+    border-radius:var(--btn-radius);
+    padding:8px 18px;
+    color:var(--muted);
+    font-size:13px;
+    cursor:pointer;
+    text-align:center;
+    transition:border-color .15s,background .15s,color .15s;
+  }
+  .dropzone:hover{border-color:var(--accent);color:var(--text);}
+  .dropzone strong{color:var(--text);font-weight:700;}
+  .dropzone .hint{display:block;font-size:12px;margin-top:1px;}
+  #fileInput{display:none;}
+
+  .feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  .prompt{display:flex;flex-direction:column;min-width:0;}
+  .prompt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0;}
+  .prompt-head h3{font-size:16px;font-weight:700;margin:0;word-break:break-word;min-width:0;}
+
+  .meta{font-size:12px;color:var(--muted);margin:6px 0 10px;}
+  .prompt-text{
+    margin:0 0 14px;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-size:14px;
+    cursor:pointer;
+    min-width:0;
+  }
+  .prompt-text.clamp{
+    display:-webkit-box;
+    -webkit-line-clamp:5;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .prompt-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:nowrap;
+    margin-top:auto;
+    padding-top:2px;
+  }
+  .prompt-actions .btn{
+    flex:1 1 0;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    text-align:center;
+  }
+
+  .empty{
+    grid-column:1/-1;
+    text-align:center;
+    color:var(--muted);
+    padding:36px 16px;
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    background:var(--card);
+  }
+
+  #dropOverlay{
+    position:fixed;
+    inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,113,227,.18);
+    backdrop-filter:blur(2px);
+    -webkit-backdrop-filter:blur(2px);
+    z-index:100;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .15s,visibility .15s;
+    padding:20px;
+  }
+  #dropOverlay.show{opacity:1;visibility:visible;}
+  #dropOverlay .inner{
+    background:var(--card);
+    border:2px dashed var(--accent);
+    border-radius:28px;
+    padding:44px 56px;
+    text-align:center;
+    color:var(--text);
+    box-shadow:0 20px 60px rgba(0,0,0,.18);
+    max-width:100%;
+    transform:scale(.96);
+    transition:transform .2s cubic-bezier(.22,1,.36,1);
+  }
+  #dropOverlay.show .inner{transform:scale(1);}
+  #dropOverlay .icon{
+    width:56px;height:56px;
+    margin:0 auto 14px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--accent);
+  }
+  #dropOverlay .icon svg{width:56px;height:56px;display:block;}
+  #dropOverlay .title{font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em;}
+  #dropOverlay .sub{font-size:14px;color:var(--muted);margin:0;}
+
+  #toTop{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    width:46px;height:46px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--text);
+    border-radius:50%;
+    cursor:pointer;
+    box-shadow:0 4px 16px rgba(0,0,0,.12);
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(8px);
+    transition:opacity .18s,transform .18s,visibility .18s,background .25s,border-color .25s;
+    z-index:50;
+  }
+  #toTop.show{opacity:1;visibility:visible;transform:translateY(0);}
+  #toTop:hover{background:var(--bg);}
+  #toTop svg{width:18px;height:18px;display:block;}
+
+  #toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%) translateY(12px);
+    background:var(--text);
+    color:var(--bg);
+    font-size:13px;
+    padding:10px 18px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s,transform .18s;
+    z-index:120;
+    max-width:calc(100vw - 32px);
+    text-align:center;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:560px){
+    .wrap{padding:20px 14px 50px;}
+    .search-wrap{max-width:none;flex:1 1 100%;}
+    .topbar-right{width:100%;}
+    .dropzone{flex:1 1 100%;}
+    .prompt-actions{flex-wrap:wrap;}
+    #toTop{right:14px;bottom:14px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:.01ms !important;animation-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Промпты</h1>
+        <p class="sub">Пиши, сохраняй и публикуй промпты для ИИ</p>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <input id="search" type="search" placeholder="Поиск по промптам">
+        </div>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить тему">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <span id="themeLabel">Тема</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="card editor" id="editor">
+    <div class="accordion-head" id="accordionHead" role="button" tabindex="0" aria-expanded="false" aria-controls="editorBody">
+      <h2 id="editorTitle">Опубликовать промпт</h2>
+      <span class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </div>
+
+    <div class="accordion-body" id="editorBody">
+      <div class="accordion-inner">
+        <label for="pTitle">Название</label>
+        <input id="pTitle" type="text" maxlength="120" placeholder="Например: Написать продающее описание товара">
+
+        <label for="pText">Текст промпта</label>
+        <textarea id="pText" rows="7" maxlength="8000" placeholder="Напиши здесь сам промпт..."></textarea>
+
+        <div class="actions">
+          <button id="btnPublish" class="btn primary" type="button">Опубликовать</button>
+          <button id="btnCancel" class="btn ghost" type="button" hidden>Отменить</button>
+          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Перетащи файл с промптом">
+            <span><strong>Перетащи файл сюда</strong> или нажми, чтобы выбрать</span>
+            <span class="hint">.txt, .md, .json — файл сразу опубликуется</span>
+          </div>
+          <span id="formMsg" class="msg" role="status"></span>
+        </div>
+
+        <input id="fileInput" type="file" accept=".txt,.md,.markdown,.json,text/plain,text/markdown,application/json">
+      </div>
+    </div>
+  </section>
+
+  <section class="list">
+    <div id="feed" class="feed"></div>
+  </section>
+</div>
+
+<div id="dropOverlay" aria-hidden="true">
+  <div class="inner">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/></svg>
+    </div>
+    <p class="title">Перетащи сюда</p>
+    <p class="sub">Отпусти файл — промпт опубликуется</p>
+  </div>
+</div>
+
+<button id="toTop" type="button" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+  var STORE_KEY = 'simpleai_prompts_v1';
+  var THEME_KEY = 'simpleai_theme_v1';
+  var MAX_FILE_SIZE = 200 * 1024;
+
+  var editor = document.getElementById('editor');
+  var accordionHead = document.getElementById('accordionHead');
+  var editorTitle = document.getElementById('editorTitle');
+  var elTitle = document.getElementById('pTitle');
+  var elText = document.getElementById('pText');
+  var formMsg = document.getElementById('formMsg');
+  var btnPublish = document.getElementById('btnPublish');
+  var btnCancel = document.getElementById('btnCancel');
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  var feed = document.getElementById('feed');
+  var search = document.getElementById('search');
+  var toast = document.getElementById('toast');
+  var toTop = document.getElementById('toTop');
+  var dropOverlay = document.getElementById('dropOverlay');
+  var themeToggle = document.getElementById('themeToggle');
+  var themeLabel = document.getElementById('themeLabel');
+  var themeIcon = document.getElementById('themeIcon');
+  var mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  var prompts = [];
+  var editingId = null;
+  var query = '';
+  var msgTimer = null;
+  var toastTimer = null;
+  var themeMode = 'auto';
+  var dragCounter = 0;
+
+  var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+  var MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  var AUTO = '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/>';
+
+  function applyTheme(){
+    var dark = themeMode === 'dark' || (themeMode === 'auto' && mediaQuery.matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    if(themeMode === 'auto'){
+      themeLabel.textContent = 'Авто';
+      themeIcon.innerHTML = AUTO;
+    }else if(themeMode === 'dark'){
+      themeLabel.textContent = 'Тёмная';
+      themeIcon.innerHTML = MOON;
+    }else{
+      themeLabel.textContent = 'Светлая';
+      themeIcon.innerHTML = SUN;
+    }
+  }
+
+  function loadTheme(){
+    try{
+      var saved = localStorage.getItem(THEME_KEY);
+      if(saved === 'light' || saved === 'dark' || saved === 'auto'){
+        themeMode = saved;
+      }else{
+        themeMode = 'auto';
+      }
+    }catch(e){
+      themeMode = 'auto';
+    }
+    applyTheme();
+  }
+
+  function cycleTheme(){
+    if(themeMode === 'auto') themeMode = 'light';
+    else if(themeMode === 'light') themeMode = 'dark';
+    else themeMode = 'auto';
+    try{ localStorage.setItem(THEME_KEY, themeMode); }catch(e){}
+    applyTheme();
+  }
+
+  mediaQuery.addEventListener('change', function(){
+    if(themeMode === 'auto') applyTheme();
+  });
+
+  function setEditorOpen(open){
+    editor.classList.toggle('open', open);
+    accordionHead.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  accordionHead.addEventListener('click', function(){
+    setEditorOpen(!editor.classList.contains('open'));
+  });
+  accordionHead.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      setEditorOpen(!editor.classList.contains('open'));
+    }
+  });
+
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      var data = raw ? JSON.parse(raw) : [];
+      prompts = Array.isArray(data) ? data.filter(function(p){
+        return p && typeof p === 'object' && typeof p.text === 'string';
+      }) : [];
+    }catch(e){
+      prompts = [];
+    }
+  }
+
+  function persist(){
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(prompts));
+      return true;
+    }catch(e){
+      showMsg('Не удалось сохранить: хранилище браузера недоступно или переполнено.', false);
+      return false;
+    }
+  }
+
+  function formatDate(ts){
+    try{
+      return new Date(ts).toLocaleDateString('ru-RU', {day:'numeric', month:'short', year:'numeric'});
+    }catch(e){
+      return '';
+    }
+  }
+
+  function showMsg(text, ok){
+    formMsg.textContent = text;
+    formMsg.className = 'msg' + (ok ? ' ok' : '');
+    if(msgTimer) clearTimeout(msgTimer);
+    msgTimer = setTimeout(function(){
+      formMsg.textContent = '';
+      formMsg.className = 'msg';
+    }, 3200);
+  }
+
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+  }
+
+  function resetForm(){
+    editingId = null;
+    elTitle.value = '';
+    elText.value = '';
+    editorTitle.textContent = 'Опубликовать промпт';
+    btnCancel.hidden = true;
+    formMsg.textContent = '';
+    formMsg.className = 'msg';
+  }
+
+  function filtered(){
+    var q = query.toLowerCase();
+    return prompts.filter(function(p){
+      if(!q) return true;
+      var hay = ((p.title || '') + ' ' + p.text).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    }).sort(function(a, b){ return (b.updatedAt || 0) - (a.updatedAt || 0); });
+  }
+
+  function buildCard(p){
+    var card = document.createElement('article');
+    card.className = 'card prompt';
+
+    var head = document.createElement('div');
+    head.className = 'prompt-head';
+
+    var h3 = document.createElement('h3');
+    h3.textContent = p.title || 'Без названия';
+    head.appendChild(h3);
+
+    card.appendChild(head);
+
+    var meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = formatDate(p.updatedAt);
+    card.appendChild(meta);
+
+    var text = document.createElement('p');
+    text.className = 'prompt-text clamp';
+    text.title = 'Нажми, чтобы развернуть';
+    text.textContent = p.text;
+    text.addEventListener('click', function(){
+      text.classList.toggle('clamp');
+    });
+    card.appendChild(text);
+
+    var actions = document.createElement('div');
+    actions.className = 'prompt-actions';
+
+    var bCopy = document.createElement('button');
+    bCopy.type = 'button';
+    bCopy.className = 'btn sm';
+    bCopy.textContent = 'Копировать';
+    bCopy.addEventListener('click', function(){ copyPrompt(p); });
+    actions.appendChild(bCopy);
+
+    var bDownload = document.createElement('button');
+    bDownload.type = 'button';
+    bDownload.className = 'btn sm';
+    bDownload.textContent = 'Скачать';
+    bDownload.addEventListener('click', function(){ downloadPrompt(p); });
+    actions.appendChild(bDownload);
+
+    var bDel = document.createElement('button');
+    bDel.type = 'button';
+    bDel.className = 'btn sm danger';
+    bDel.textContent = 'Удалить';
+    bDel.addEventListener('click', function(){ removePrompt(p.id); });
+    actions.appendChild(bDel);
+
+    card.appendChild(actions);
+    return card;
+  }
+
+  function render(){
+    feed.textContent = '';
+    var items = filtered();
+
+    if(!items.length){
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      if(!prompts.length){
+        empty.textContent = 'Пока ничего нет. Раскрой вкладку «Опубликовать промпт» выше или перетащи файл.';
+      }else{
+        empty.textContent = 'По этому запросу ничего не найдено.';
+      }
+      feed.appendChild(empty);
+      return;
+    }
+
+    var frag = document.createDocumentFragment();
+    items.forEach(function(p){ frag.appendChild(buildCard(p)); });
+    feed.appendChild(frag);
+  }
+
+  function addPrompt(data){
+    var now = Date.now();
+    prompts.push({
+      id: uid(),
+      title: String(data.title || 'Без названия').slice(0, 120),
+      text: String(data.text),
+      createdAt: now,
+      updatedAt: now
+    });
+    if(!persist()) return false;
+    render();
+    return true;
+  }
+
+  function commit(){
+    var title = elTitle.value.trim();
+    var text = elText.value.trim();
+
+    if(!title){
+      showMsg('Впиши название промпта.', false);
+      elTitle.focus();
+      return;
+    }
+    if(!text){
+      showMsg('Впиши текст промпта.', false);
+      elText.focus();
+      return;
+    }
+
+    var now = Date.now();
+
+    if(editingId){
+      var p = null;
+      for(var i = 0; i < prompts.length; i++){
+        if(prompts[i].id === editingId){ p = prompts[i]; break; }
+      }
+      if(!p){
+        showMsg('Промпт не найден.', false);
+        resetForm();
+        render();
+        return;
+      }
+      p.title = title;
+      p.text = text;
+      p.updatedAt = now;
+    }else{
+      prompts.push({
+        id: uid(),
+        title: title,
+        text: text,
+        createdAt: now,
+        updatedAt: now
+      });
+    }
+
+    if(!persist()) return;
+
+    resetForm();
+    render();
+    showToast('Промпт опубликован');
+  }
+
+  function removePrompt(id){
+    var p = null;
+    for(var i = 0; i < prompts.length; i++){
+      if(prompts[i].id === id){ p = prompts[i]; break; }
+    }
+    if(!p) return;
+    if(!confirm('Удалить промпт «' + (p.title || 'Без названия') + '»?')) return;
+
+    prompts = prompts.filter(function(x){ return x.id !== id; });
+    if(editingId === id) resetForm();
+    if(!persist()) return;
+    render();
+    showToast('Промпт удалён');
+  }
+
+  function copyPrompt(p){
+    var payload = p.text;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(payload).then(function(){
+        showToast('Скопировано');
+      }, function(){
+        fallbackCopy(payload);
+      });
+    }else{
+      fallbackCopy(payload);
+    }
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    showToast(ok ? 'Скопировано' : 'Не удалось скопировать');
+  }
+
+  function safeFileName(title){
+    var name = String(title || 'промпт')
+      .replace(/[\\/:*?"<>|\r\n\t]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 80);
+    return name || 'промпт';
+  }
+
+  function downloadPrompt(p){
+    var content = p.text + '\n';
+    var blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = safeFileName(p.title) + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showToast('Файл скачивается');
+  }
+
+  function baseName(name){
+    return String(name || '').replace(/\.[^.]+$/, '').trim() || 'Без названия';
+  }
+
+  function publishFromFile(file){
+    if(!file) return;
+    if(file.size > MAX_FILE_SIZE){
+      showMsg('Файл больше 200 КБ — уменьши его.', false);
+      setEditorOpen(true);
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      var raw = String(reader.result || '');
+      var title = baseName(file.name);
+      var text = raw;
+
+      var isJson = /\.json$/i.test(file.name) || /application\/json/i.test(file.type);
+      if(isJson){
+        try{
+          var data = JSON.parse(raw);
+          if(Array.isArray(data)){
+            var added = 0;
+            data.forEach(function(item){
+              if(item && typeof item === 'object' && typeof item.text === 'string' && item.text.trim()){
+                if(addPrompt({
+                  title: String(item.title || 'Импорт').slice(0, 120),
+                  text: String(item.text)
+                })) added++;
+              }
+            });
+            if(added){
+              showToast('Опубликовано промптов: ' + added);
+            }else{
+              showMsg('В JSON не нашлось промптов с полем text.', false);
+              setEditorOpen(true);
+            }
+            return;
+          }
+          if(data && typeof data === 'object' && typeof data.text === 'string'){
+            title = String(data.title || title).slice(0, 120);
+            text = String(data.text);
+          }else{
+            showMsg('В JSON нет поля text.', false);
+            setEditorOpen(true);
+            return;
+          }
+        }catch(e){
+          showMsg('Не удалось прочитать JSON.', false);
+          setEditorOpen(true);
+          return;
+        }
+      }
+
+      text = text.trim();
+      if(!text){
+        showMsg('Файл пустой.', false);
+        setEditorOpen(true);
+        return;
+      }
+
+      if(addPrompt({title: title, text: text})){
+        showToast('Файл опубликован: ' + title);
+      }
+    };
+    reader.onerror = function(){
+      showMsg('Не удалось прочитать файл.', false);
+      setEditorOpen(true);
+    };
+    reader.readAsText(file);
+  }
+
+  dropzone.addEventListener('click', function(){ fileInput.click(); });
+  dropzone.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+  fileInput.addEventListener('change', function(){
+    if(fileInput.files && fileInput.files[0]){
+      publishFromFile(fileInput.files[0]);
+    }
+    fileInput.value = '';
+  });
+
+  function hasFiles(e){
+    if(!e.dataTransfer) return false;
+    var types = e.dataTransfer.types;
+    if(!types) return false;
+    for(var i = 0; i < types.length; i++){
+      if(types[i] === 'Files') return true;
+    }
+    return false;
+  }
+
+  window.addEventListener('dragenter', function(e){
+    e.preventDefault();
+    if(!hasFiles(e)) return;
+    dragCounter++;
+    dropOverlay.classList.add('show');
+    dropzone.classList.add('drag');
+  });
+
+  window.addEventListener('dragover', function(e){
+    e.preventDefault();
+    if(!hasFiles(e)) return;
+    if(e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+  });
+
+  window.addEventListener('dragleave', function(e){
+    e.preventDefault();
+    dragCounter--;
+    if(dragCounter <= 0){
+      dragCounter = 0;
+      dropOverlay.classList.remove('show');
+      dropzone.classList.remove('drag');
+    }
+  });
+
+  window.addEventListener('drop', function(e){
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('show');
+    dropzone.classList.remove('drag');
+    var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) publishFromFile(file);
+  });
+
+  function updateToTop(){
+    if(window.scrollY > 300){
+      toTop.classList.add('show');
+    }else{
+      toTop.classList.remove('show');
+    }
+  }
+
+  btnPublish.addEventListener('click', commit);
+  btnCancel.addEventListener('click', function(){ resetForm(); });
+  themeToggle.addEventListener('click', cycleTheme);
+
+  elText.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      commit();
+    }
+  });
+
+  search.addEventListener('input', function(){
+    query = search.value.trim();
+    render();
+  });
+
+  toTop.addEventListener('click', function(){
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+
+  window.addEventListener('scroll', updateToTop, {passive: true});
+
+  loadTheme();
+  load();
+  render();
+  updateToTop();
+  setEditorOpen(false);
+})();
+</script>
+</body>
+</html>
